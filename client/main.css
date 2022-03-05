@@ -1,0 +1,64 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+button {
+    padding: 2%;
+    text-align: center;
+    border: none;
+}
+
+#pageLayout {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+#customize {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+#clearArt {
+    margin-top: 15px;
+    padding: 10px;
+    width: 50%;
+    display: block;
+    margin: auto;
+    border: none;
+}
+.container {
+    padding: 10px;
+    border: 1px solid slategray;
+    border-radius: 5%;
+    background-color:lightgray;
+
+}
+
+.container button {
+    margin: 1%;
+    width: 30%;
+}
+.color1 {
+    background-color: red;
+    color: white;
+}
+.color2 {
+    background-color: green;
+    color: white;
+}
+.color3 {
+    background-color: blue;
+    color: white;
+}
+.color4 {
+    background-color: orange;
+    color: white;
+}
+.color5 {
+    background-color: yellow;
+}
+.color6 {
+    background-color: Purple;
+    color: white;
+}

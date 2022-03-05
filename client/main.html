@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 1</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="canvasTools.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap');
+    </style>
+</head>
+<body>
+    <nav>
+       <h1 class="title">API Drawing App</h1>
+    </nav>
+    <div id="pageLayout">
+        <canvas id="mainCanvas" height="500" width="500" style="border: 1px solid red"></canvas>
+        <section id="customize">
+            <div class="container">
+                <div class="item1">
+                    <h2>Brushes</h2>
+                    <button class="subItem1" value="circle">Circle</button>
+                    <button class="subItem2" value="square">Square</button>
+                    <button class="eraser">Eraser</button>
+                </div>
+                <div class="item2">
+                    <h2>Colors</h2>
+                    <button class="color1" value="red">Red</button>
+                    <button class="color2" value="green">Green</button>
+                    <button class="color3" value="blue">Blue</button>
+                    <button class="color4" value="orange">Orange</button>
+                    <button class="color5" value="yellow">Yellow</button>
+                    <button class="color6" value="purple">Purple</button>
+                </div>
+                <button id="clearArt">Clear</button> 
+            </div>
+            <button id="saveArt">Save</button>
+            <p id="saveButton"></p>
+            <p>Size: </p> <div id="showBrushSize"></div>
+            <input type="range" min="1" max="100" value="10" class="slider" id="sizeSlider">
+        </section>
+        <section id="listOfSaves">
+            <h1>Saved Files</h1>
+        </section>
+    </div>
+    <script defer>
+        const Tool = new ToolSet();
+        const subItem1 = document.querySelector(".subItem1"), subItem2 = document.querySelector(".subItem2"), eraser = document.querySelector(".eraser");
+        const color1 = document.querySelector(".color1"), color2 = document.querySelector(".color2"), color3 = document.querySelector(".color3"), color4 = document.querySelector(".color4"), color5 = document.querySelector(".color5"), color6 = document.querySelector(".color6");
+        const saveButton = document.getElementById("saveArt");
+        const clearButton = document.getElementById("clearArt");
+        const selectTool = document.getElementById("tool");
+        const slider = document.getElementById("sizeSlider");
+        const canvas = document.getElementById("mainCanvas");
+        const saveList = document.getElementById("listOfSaves");
+        const ctx = canvas.getContext('2d');
+        let loadedData = [];
+        let brushSize = slider.value;
+        let brushColor = "red";
+        let pageStorage = [];
+        let tempStorage = [];
+        let mousedown = false;
+        let mouseLoc = {x: 0, y: 0};
+        let currentTool = "square";
+
+        // The url struct on the node server can also make useful selection systems
+        const toolController = {
+            "square" : Tool.createSquare,
+            "circle" : Tool.createCircle,
+        }
+        function drawCanvas() {
+            displayArt();
+        }
+        function main() {
+            canvas.addEventListener("mousedown", handleMouseDown);
+            canvas.addEventListener("mousemove", handleMouseMove);
+            canvas.addEventListener("mouseup", handleMouseUp);
+            color1.addEventListener("click", () => {brushColor = color1.value});
+            color2.addEventListener("click", () => {brushColor = color2.value});
+            color3.addEventListener("click", () => {brushColor = color3.value});
+            color4.addEventListener("click", () => {brushColor = color4.value});
+            color5.addEventListener("click", () => {brushColor = color5.value});
+            color6.addEventListener("click", () => {brushColor = color6.value});
+            subItem1.addEventListener("click", () => {currentTool = subItem1.value});
+            subItem2.addEventListener("click", () => {currentTool = subItem2.value});
+            eraser.addEventListener("click", () => {brushColor = "white"});
+            getAllSaves();
+        }
+            
+
+        const handleMouseDown = (e) => {
+            mouseLoc.x = e.offsetX - brushSize/2;
+            mouseLoc.y = e.offsetY - brushSize/2;
+            mousedown = true;
+            tempStorage.push(toolController[currentTool](mouseLoc.x, mouseLoc.y, brushSize, brushColor));
+            displayArt(tempStorage);
+        }
+
+        const handleMouseMove = (e) => {
+            mouseLoc.x = e.offsetX - brushSize/2;
+            mouseLoc.y = e.offsetY - brushSize/2;
+            if (mousedown) {
+              tempStorage.push(toolController[currentTool](mouseLoc.x, mouseLoc.y, brushSize, brushColor));
+              displayArt(tempStorage);
+            } 
+        }
+
+        const handleMouseUp = (e) => {
+            if (mouseInCanvas(e)) {
+                mousedown = false;
+                pageStorage = pageStorage.concat(tempStorage);
+                console.log(pageStorage);
+                tempStorage = [];
+                displayArt(pageStorage);
+            }
+        }
+
+        const mouseInCanvas = (e) => {
+            if (e.offsetX < canvas.width && e.offsetY < canvas.height) {
+                return true;
+            }
+        }
+
+        const displayArt = (storage) => {
+            if (storage) {
+                for (let i = 0; i < storage.length; i++) {
+                let shape = storage[i];
+                ctx.fillStyle = shape.color;
+                
+                switch (shape.type) {
+                    case "square":
+                     ctx.fillRect(shape.xLoc, shape.yLoc, shape.size, shape.size);
+                    break;
+
+                    case "circle": 
+                    ctx.beginPath();
+                    ctx.arc(shape.xLoc, shape.yLoc, shape.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    break;
+                }
+            }
+            }
+        }
+
+        const handleResponse = async (response) => {
+            const respondStatus = document.getElementById("saveButton");
+
+            switch(response.status) {
+                case 200: 
+                    respondStatus.innerHTML = `<b>Success</b>`;
+                    break;
+                case 201:
+                    respondStatus.innerHTML = `<b>Save Created</b>`;
+                    break; 
+                case 204:
+                    respondStatus.innerHTML = `<b>Updated...</b>`;
+                    break;
+                case 400:
+                    respondStatus.innerHTML = `<b>Bad Request</b>`;
+                    break;
+                default:
+                    respondStatus.innerHTML = `Save Unsuccessful...`;
+                    break;
+            }
+
+            let obj = await response.json();
+
+            if (obj.message) {
+                respondStatus.innerHTML += `<p>${obj.message}</p>`;
+            }
+        }
+        const createSave = async (storage) => {
+            const data = {
+                name: "Save Test",
+                savedArt: pageStorage
+            }
+
+            let response = await fetch('/saveArt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify(data) ,
+            });
+
+            handleResponse(response);
+        }
+
+    const getAllSaves =  () => {
+       fetch('/getSaved')
+        .then(response => response.json())
+        .then(data => {
+            try {
+                for (let i = 0; i < data.length; i++) {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = data[i].name;
+                listItem.addEventListener("click",() => {
+                    loadDrawing(listItem.innerHTML);
+                });
+                saveList.appendChild(listItem);
+            }
+            } catch {
+                console.log("No Save Files Found");
+            }
+        });
+    }
+
+    const getSaveByName = (name) => {
+        fetch(`/getSaveByName?name=${name}`)
+        .then(response => response.json())
+        .then(data => console.log(data));
+    }
+
+    const loadDrawing = (name) => {
+        getSaveByName(name);
+    }
+        clearButton.onclick = () => {
+            pageStorage = [];
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCanvas();
+        }
+        saveButton.onclick = () => {  
+            if (pageStorage.length > 0) {
+                createSave(pageStorage);
+            } else {
+                alert("There is nothing to save!");
+            }
+            
+        }
+
+        slider.oninput = () => {
+            brushSize = slider.value;
+            document.querySelector("#showBrushSize").innerHTML = slider.value + "%";
+        }
+        
+        window.onload = main();
+    </script>
+</body>
+</html>
