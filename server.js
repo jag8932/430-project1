@@ -1,11 +1,11 @@
-const http = require('http');
-const url = require('url');
-const query = require('querystring');
+const http = require('http'); //eslint-disable-line
+const url = require('url'); //eslint-disable-line
+const query = require('querystring'); //eslint-disable-line
 
-const clientHandler = require('./controllers/htmlController');
-const saveHandler = require('./controllers/saveController');
+const clientHandler = require('./controllers/htmlController'); //eslint-disable-line
+const saveHandler = require('./controllers/saveController'); //eslint-disable-line
 
-const port = process.env.PORT || process.env.NODE_PORT || 3000;
+const port = process.env.PORT || process.env.NODE_PORT || 3000; //eslint-disable-line
 // URL Struct to help organize routing. Learned this from Tony
 
 const urlStruct = {
@@ -35,7 +35,7 @@ const handlePost = (req, res, handler) => {
     });
 
     req.on('end', ()=> {
-        const bodyString = Buffer.concat(body).toString();
+        const bodyString = Buffer.concat(body).toString(); //eslint-disable-line
         const bodyParams = query.parse(bodyString);
 
         handler(req, res, bodyParams);

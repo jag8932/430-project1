@@ -1,6 +1,5 @@
 
-class ToolSet {
-
+class ToolSet { //eslint-disable-line
      createSquare = (x, y, size, color) => {
         let square = {
             type: "square",

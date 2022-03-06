@@ -8,6 +8,17 @@ button {
     border: none;
 }
 
+li {
+    border: 1px solid lightskyblue;
+    border-radius: 5%;
+    padding: 5px;
+    list-style-type: none;
+}
+
+li:hover {
+    border-color: blue;
+}
+
 #pageLayout {
     display: flex;
     flex-direction: row;
@@ -18,7 +29,13 @@ button {
     padding-left: 5%;
     padding-right: 5%;
 }
-
+#saveArt {
+    margin-top: 15px;
+    padding: 10px;
+    width: 50%;
+    display: block;
+    border: none;
+}
 #clearArt {
     margin-top: 15px;
     padding: 10px;
@@ -35,6 +52,11 @@ button {
 
 }
 
+.showBrush {
+    padding: 20px;
+    width: 5%;
+    background-color: red;
+}
 .container button {
     margin: 1%;
     width: 30%;

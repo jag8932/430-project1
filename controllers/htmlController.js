@@ -1,8 +1,8 @@
-const fs = require('fs');
+const fs = require('fs'); //eslint-disable-line
 
-const drawPage = fs.readFileSync(`${__dirname}/../client/main.html`);
-const tools = fs.readFileSync(`${__dirname}/../client/canvasTools.js`);
-const css = fs.readFileSync(`${__dirname}/../client/main.css`);
+const drawPage = fs.readFileSync(`${__dirname}/../client/main.html`); //eslint-disable-line
+const tools = fs.readFileSync(`${__dirname}/../client/canvasTools.js`); //eslint-disable-line
+const css = fs.readFileSync(`${__dirname}/../client/main.css`); //eslint-disable-line
 
 const getCSS = (req, res) => {
     res.writeHead(200, {'Content-Type': 'text/css'});
@@ -21,7 +21,7 @@ const getDrawPage = (req, res) => {
     res.end();
 }
 
-module.exports = {
+module.exports = { //eslint-disable-line
     getDrawPage,
     getCSS,
     getCanvasTools

@@ -20,7 +20,7 @@
         <section id="customize">
             <div class="container">
                 <div class="item1">
-                    <h2>Brushes</h2>
+                    <h2>Brushes <div class="showBrush" ></div></h2> 
                     <button class="subItem1" value="circle">Circle</button>
                     <button class="subItem2" value="square">Square</button>
                     <button class="eraser">Eraser</button>
@@ -47,7 +47,7 @@
     </div>
     <script defer>
         const Tool = new ToolSet();
-        const subItem1 = document.querySelector(".subItem1"), subItem2 = document.querySelector(".subItem2"), eraser = document.querySelector(".eraser");
+        const subItem1 = document.querySelector(".subItem1"), subItem2 = document.querySelector(".subItem2"), eraser = document.querySelector(".eraser"), showBrush = document.querySelector(".showBrush");
         const color1 = document.querySelector(".color1"), color2 = document.querySelector(".color2"), color3 = document.querySelector(".color3"), color4 = document.querySelector(".color4"), color5 = document.querySelector(".color5"), color6 = document.querySelector(".color6");
         const saveButton = document.getElementById("saveArt");
         const clearButton = document.getElementById("clearArt");
@@ -77,15 +77,15 @@
             canvas.addEventListener("mousedown", handleMouseDown);
             canvas.addEventListener("mousemove", handleMouseMove);
             canvas.addEventListener("mouseup", handleMouseUp);
-            color1.addEventListener("click", () => {brushColor = color1.value});
-            color2.addEventListener("click", () => {brushColor = color2.value});
-            color3.addEventListener("click", () => {brushColor = color3.value});
-            color4.addEventListener("click", () => {brushColor = color4.value});
-            color5.addEventListener("click", () => {brushColor = color5.value});
-            color6.addEventListener("click", () => {brushColor = color6.value});
-            subItem1.addEventListener("click", () => {currentTool = subItem1.value});
-            subItem2.addEventListener("click", () => {currentTool = subItem2.value});
-            eraser.addEventListener("click", () => {brushColor = "white"});
+            color1.addEventListener("click", () => {brushColor = color1.value; showBrush.style = `background-color:${color1.value}`});
+            color2.addEventListener("click", () => {brushColor = color2.value; showBrush.style = `background-color:${color2.value}`});
+            color3.addEventListener("click", () => {brushColor = color3.value; showBrush.style = `background-color:${color3.value}`});
+            color4.addEventListener("click", () => {brushColor = color4.value; showBrush.style = `background-color:${color4.value}`});
+            color5.addEventListener("click", () => {brushColor = color5.value; showBrush.style = `background-color:${color5.value}`});
+            color6.addEventListener("click", () => {brushColor = color6.value; showBrush.style = `background-color:${color6.value}`});
+            subItem1.addEventListener("click", () => {currentTool = subItem1.value; showBrush.style = `border-radius: 50%; background-color: ${brushColor}`});
+            subItem2.addEventListener("click", () => {currentTool = subItem2.value; showBrush.style = `border-radius: 0%; background-color: ${brushColor}`});
+            eraser.addEventListener("click", () => {brushColor = "white"; showBrush.style = `background-color: white`});
             getAllSaves();
         }
             
@@ -111,7 +111,6 @@
             if (mouseInCanvas(e)) {
                 mousedown = false;
                 pageStorage = pageStorage.concat(tempStorage);
-                console.log(pageStorage);
                 tempStorage = [];
                 displayArt(pageStorage);
             }
@@ -171,9 +170,9 @@
                 respondStatus.innerHTML += `<p>${obj.message}</p>`;
             }
         }
-        const createSave = async (storage) => {
+        const createSave = async (storage, name) => {
             const data = {
-                name: "Save Test",
+                name: name,
                 savedArt: pageStorage
             }
 
@@ -211,7 +210,11 @@
     const getSaveByName = (name) => {
         fetch(`/getSaveByName?name=${name}`)
         .then(response => response.json())
-        .then(data => console.log(data));
+        .then(data => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            pageStorage = data.savedArt;
+            displayArt(pageStorage);
+        });
     }
 
     const loadDrawing = (name) => {
@@ -224,7 +227,9 @@
         }
         saveButton.onclick = () => {  
             if (pageStorage.length > 0) {
-                createSave(pageStorage);
+                let name = prompt("Name Your Save File", "");
+                createSave(pageStorage, name);
+                getAllSaves();
             } else {
                 alert("There is nothing to save!");
             }
